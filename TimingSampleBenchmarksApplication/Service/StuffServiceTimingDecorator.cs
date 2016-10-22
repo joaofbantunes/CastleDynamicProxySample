@@ -19,7 +19,7 @@ namespace CodingMilitia.TimingSampleBenchmarksApplication.Service
             //DateTime doesn't have the best precision, but it's enough for this sample
             DateTime requestStartTime = DateTime.Now;
             _logger?.LogDebug(string.Format("{0}.{1}() started at - {2}",
-                _continuation.GetType().DeclaringType,
+                _continuation.GetType().Name,
                 nameof(DoTimeConsumingStuff),
                 requestStartTime));
             try
@@ -30,7 +30,7 @@ namespace CodingMilitia.TimingSampleBenchmarksApplication.Service
             {
                 DateTime requestEndTime = DateTime.Now;
                 _logger?.LogDebug(string.Format("{0}.{1}() ended at - {2} - took around {3}ms to complete",
-                    _continuation.GetType().DeclaringType,
+                    _continuation.GetType().Name,
                     nameof(DoTimeConsumingStuff),
                     requestEndTime,
                     (requestEndTime - requestStartTime).TotalMilliseconds));
