@@ -28,3 +28,29 @@ Type=CacheBenchmark  Mode=Throughput
  ProxyWithConfiguredKeys | 25,621.3372 ns |  96.2125 ns |
                Decorator |    399.2209 ns |   3.9400 ns |
 
+We can see there is a difference in the order of magnitute between the proxy approach and the decorator approach. This is not due (mostly) with using the DynamicProxy, but because this approach requires some under the hood "magic" to work (intercept only the correct methods, creating the cache keys dynamically and so on) that the decorator doesn't because it's coded for each specific situation.
+
+The TimingInterceptor shows a way to check the time an operation takes to complete, like CacheInterceptor, avoiding the implementation of a decorator and the repetitive timeing logic.
+
+The TimingSampleBenchmarksApplication project benchmarks the TimingInterceptor and puts it against a decorator implementation for the same interface in order to check for the performance differences.
+
+```ini
+
+Host Process Environment Information:
+BenchmarkDotNet.Core=v0.9.9.0
+OS=Windows
+Processor=?, ProcessorCount=8
+Frequency=2740588 ticks, Resolution=364.8852 ns, Timer=TSC
+CLR=CORE, Arch=64-bit ? [RyuJIT]
+GC=Concurrent Workstation
+dotnet cli version: 1.0.0-preview2-003133
+
+Type=TimingBenchmark  Mode=Throughput  
+
+```
+       Method |      Median |    StdDev |
+------------- |------------ |---------- |
+ DynamicProxy | 963.4282 ns | 6.8242 ns |
+    Decorator | 866.9434 ns | 4.6971 ns |
+    
+This is a better example to check the performance difference between the proxy and the decorator approach then the CacheInterceptor, because to do the timing of the operation we don't need so much "auto-magic" going on.
