@@ -182,9 +182,10 @@ namespace CodingMilitia.CastleDynamicProxySample.Caching
                         invocation.Arguments[i]));
                 }
 
-                //construct the cache key, "<generic arguments>method name(parameters)"
-                var cacheKey = string.Format("<{0}>{1}({2})",
+                //construct the cache key, "<generic arguments>full type name.method name(parameters)"
+                var cacheKey = string.Format("<{0}>{1}.{2}({3})",
                     string.Join(",", genericArguments.Select(ga => ga.Name)),
+                    invocation.TargetType.FullName,
                     invocation.MethodInvocationTarget.Name,
                     string.Join(",", parametersString)
                 );
@@ -193,7 +194,6 @@ namespace CodingMilitia.CastleDynamicProxySample.Caching
                 return cacheKey;
             }
 
-            //IEnumerable doesn't have a Count() or Any extension method, so this is needed in the Intercept method
             private static bool CollectionHasElements(IEnumerable collection)
             {
                 return collection.Cast<object>().Any();
