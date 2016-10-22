@@ -21,10 +21,10 @@ namespace CodingMilitia.CachingSampleBenchmarksApplication.Service
         public TOut GetGenericStuff<TOut, TIn>(TIn stuffId, TOut stuffToReturn)
         {
             string cacheKey = $"GetGenericStuff(\"{stuffId}\",\"{stuffToReturn}\")";
-            ICachedObject<TOut> cachedValue = _cache.Get<TOut>(cacheKey);
-            if (cachedValue.HasObject)
+            var cachedValue = _cache.Get(cacheKey);
+            if (cachedValue.HasValue)
             {
-                return cachedValue.Object;
+                return (TOut)cachedValue.Value;
             }
             var value = _continuation.GetGenericStuff(stuffId, stuffToReturn);
             _cache.Add(cacheKey,stuffToReturn,_ttl);

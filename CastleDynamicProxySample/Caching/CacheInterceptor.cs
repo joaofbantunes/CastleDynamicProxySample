@@ -113,18 +113,9 @@ namespace CodingMilitia.CastleDynamicProxySample.Caching
 
             public bool TryGetFromCache(out object cached)
             {
-                //get the cache Get method through reflection, because we can't do it normally without knowing the generic argument <T>
-                var method = typeof(ICache).GetMethod(nameof(ICache.Get));
-                var generic = method.MakeGenericMethod(_invocation.MethodInvocationTarget.ReturnType);
-                //make the Get call and return immediately if it returns true
-                var args = new object[] { _cacheKey };
-                var cachedValue = generic.Invoke(_cacheProvider, args);
-                var isInCache =
-                    (bool)
-                    typeof(ICachedObject<>).MakeGenericType(_invocation.MethodInvocationTarget.ReturnType).GetProperty(nameof(ICachedObject<object>.HasObject)).GetValue(cachedValue);
-                cached = isInCache
-                    ? typeof(ICachedObject<>).MakeGenericType(_invocation.MethodInvocationTarget.ReturnType).GetProperty(nameof(ICachedObject<object>.Object)).GetValue(cachedValue)
-                    : null;
+                var cachedValue = _cacheProvider.Get(_cacheKey);
+                var isInCache = cachedValue.HasValue;
+                cached = isInCache ? cachedValue.Value : null;
                 return isInCache;
             }
 
@@ -142,14 +133,9 @@ namespace CodingMilitia.CastleDynamicProxySample.Caching
                 if (!_configAttribute.CacheEmptyCollectionValues && toCache is IEnumerable && !CollectionHasElements((IEnumerable)toCache))
                     return;
 
-                //get the cache Add method through reflection, because we can't do it normally without knowing the generic argument <T>
-                var method = typeof(ICache).GetMethod(nameof(ICache.Add));
-                var generic = method.MakeGenericMethod(_invocation.MethodInvocationTarget.ReturnType);
                 var ttl = GetTtl();
-
-                //invoke the cache Add method
-                var args = new object[] { _cacheKey, toCache, ttl };
-                generic.Invoke(_cacheProvider, args);
+                
+                _cacheProvider.Add(_cacheKey, toCache, ttl);
             }
 
             private static CacheInterceptorConfigurationAttribute GetAttribute(IInvocation invocation)

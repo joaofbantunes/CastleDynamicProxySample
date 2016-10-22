@@ -12,25 +12,15 @@ namespace CodingMilitia.CachingSampleBenchmarksApplication.Mock
             _logger = loggerFactory?.CreateLogger<MockCache>();
         }
 
-        public void Add<T>(string key, T value, TimeSpan timeToLive)
+        public void Add(string key, object value, TimeSpan timeToLive)
         {
             _logger?.LogDebug($"\"{nameof(Add)}\" invoked with key \"{key}\", value \"{value}\", ttl \"{timeToLive}\"");
         }
 
-        public ICachedObject<T> Get<T>(string key)
+        public CachedValue Get(string key)
         {
             _logger?.LogDebug($"\"{nameof(Get)}\" invoked with key \"{key}\"");
-            return new MockCachedObject<T>(false, default(T));
-        }
-
-        public void Remove(string key)
-        {
-
-        }
-
-        public void Dispose()
-        {
-
+            return new CachedValue(false, null);
         }
     }
 }

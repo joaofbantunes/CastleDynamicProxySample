@@ -2,18 +2,22 @@
 
 namespace CodingMilitia.CastleDynamicProxySample.Caching
 {
-    public interface ICache : IDisposable
+    public interface ICache
     {
-        void Add<T>(string key, T value, TimeSpan timeToLive);
+        void Add(string key, object value, TimeSpan timeToLive);
 
-        ICachedObject<T> Get<T>(string key);
-
-        void Remove(string key);
+        CachedValue Get(string key);
     }
 
-    public interface ICachedObject<out T>
+    public class CachedValue
     {
-        bool HasObject { get; }
-        T Object { get; }
+        public bool HasValue { get; private set; }
+        public object Value { get; private set; }
+
+        public CachedValue(bool hasValue, object value)
+        {
+            HasValue = hasValue;
+            Value = value;
+        }
     }
 }
