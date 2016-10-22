@@ -99,7 +99,6 @@ namespace CodingMilitia.CastleDynamicProxySample.Caching
                     _cacheKey = GetConfiguredCacheKey(invocation, _configAttribute) ??
                                 CreateCacheKey(invocation, _configAttribute);
 
-
                     if (string.IsNullOrWhiteSpace(_cacheKey))
                         throw new Exception("Failed to obtain a cache key");
                 }
@@ -140,14 +139,8 @@ namespace CodingMilitia.CastleDynamicProxySample.Caching
 
             private static CacheInterceptorConfigurationAttribute GetAttribute(IInvocation invocation)
             {
-                //Get type CacheInterceptorConfigurationAttribute metadata.
-                var configurationAttributeType = typeof(CacheInterceptorConfigurationAttribute);
-                var configAttributes = invocation.MethodInvocationTarget.GetCustomAttributes(configurationAttributeType,
-                    false);
-                var enumeratedAttributes = configAttributes.ToArray();
-                //if there are a config attribute defined and UseCache = true
-                var configAttribute =
-                    enumeratedAttributes.Select(a => a as CacheInterceptorConfigurationAttribute).SingleOrDefault();
+                var configAttribute = invocation.MethodInvocationTarget
+                    .GetCustomAttribute(typeof(CacheInterceptorConfigurationAttribute), false) as CacheInterceptorConfigurationAttribute;
                 return configAttribute;
             }
 
