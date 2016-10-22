@@ -27,6 +27,4 @@ Type=CacheBenchmark  Mode=Throughput
   ProxyWithGeneratedKeys | 40,180.3769 ns | 293.9969 ns |
  ProxyWithConfiguredKeys | 25,621.3372 ns |  96.2125 ns |
                Decorator |    399.2209 ns |   3.9400 ns |
-442 ns |
-ark_Decorator
-    428.5731 ns |    13.1603 ns |
+
