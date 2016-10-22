@@ -7,7 +7,7 @@ namespace CodingMilitia.TimingSampleBenchmarksApplication.Service
     {
         public void DoTimeConsumingStuff()
         {
-            Thread.Sleep(5);
+            Thread.Sleep(1);
         }
     }
 }
