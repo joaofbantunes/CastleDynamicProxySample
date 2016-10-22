@@ -1,0 +1,13 @@
+﻿{
+  "version": "1.0.0-*",
+  "dependencies": {
+    "Castle.Core": "4.0.0-beta001",
+    "Microsoft.Extensions.Logging.Abstractions": "1.0.0",
+    "NETStandard.Library": "1.6.0"
+  },
+  "frameworks": {
+    "netstandard1.6": {
+      "imports": "dnxcore50"
+    }
+  }
+}
