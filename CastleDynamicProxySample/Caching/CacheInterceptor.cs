@@ -112,9 +112,14 @@ namespace CodingMilitia.CastleDynamicProxySample.Caching
 
             public bool TryGetFromCache(out object cached)
             {
-                var cachedValue = _cacheProvider.Get(_cacheKey);
-                var isInCache = cachedValue.HasValue;
-                cached = isInCache ? cachedValue.Value : null;
+                cached = null;
+                var isInCache = false;
+                if(_useCache)
+                {
+                    var cachedValue = _cacheProvider.Get(_cacheKey);
+                    isInCache = cachedValue.HasValue;
+                    cached = isInCache ? cachedValue.Value : null;
+                }	
                 return isInCache;
             }
 
