@@ -1,4 +1,4 @@
-On commit https://github.com/joaofbantunes/CastleDynamicProxySample/commit/7e477794225accff2ab92c03557079bf95f75097 was able to make a good performance improvement by simplifying the ICache interface to not use generics, avoiding the use of reflection (`MakeGenericMethod`) on the CacheInterceptor.
+On commit [7e47779](https://github.com/joaofbantunes/CastleDynamicProxySample/commit/7e477794225accff2ab92c03557079bf95f75097) was able to make a performance improvement by simplifying the ICache interface to not use generics, avoiding the use of reflection (`MakeGenericMethod`) on the CacheInterceptor.
 
 Improved from:
 
