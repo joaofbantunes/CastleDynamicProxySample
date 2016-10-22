@@ -53,4 +53,7 @@ Type=TimingBenchmark  Mode=Throughput
  DynamicProxy | 963.4282 ns | 6.8242 ns |
     Decorator | 866.9434 ns | 4.6971 ns |
     
-This is a better example to check the performance difference between the proxy and the decorator approach then the CacheInterceptor, because to do the timing of the operation we don't need so much "auto-magic" going on.
+This is a better example to check the performance difference between the proxy and the decorator approach then the CacheInterceptor, because to do the timing of the operation we don't need so much "magic" going on in the interceptor.
+
+**Note**
+This code was not thoroughly tested so if you find it useful and want to use some or all of it, be sure to write some unit tests for it.
