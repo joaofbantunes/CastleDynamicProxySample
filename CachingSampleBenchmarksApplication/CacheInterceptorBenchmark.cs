@@ -27,7 +27,7 @@ namespace CodingMilitia.CachingSampleBenchmarksApplication
             var proxyGenerator = new ProxyGenerator();
             var service = new StuffService();
             _proxiedService = proxyGenerator.CreateInterfaceProxyWithTarget<IStuffService>(service, cacheInterceptor);
-            _decoratedService = new StuffServiceCacheDecorator(cache, service);
+            _decoratedService = new StuffServiceCacheDecorator(cache, null, service);
         }
 
         [Benchmark]
