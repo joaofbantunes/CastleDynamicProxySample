@@ -57,5 +57,9 @@ Type=TimingBenchmark  Mode=Throughput
     
 This is a better example to check the performance difference between the proxy and the decorator approachs than the CacheInterceptor, because to do the timing of the operation we don't need so much "magic" going on in the interceptor.
 
+## TODO
+* [CacheInterceptor] Better decouple the logic to improve testability
+* Support async methods
+
 ### Note
 This code was not thoroughly tested so if you find it useful and want to use some or all of it, be sure to write some unit tests for it.
