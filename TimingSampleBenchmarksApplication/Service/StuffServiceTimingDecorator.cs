@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Diagnostics;
 
 namespace CodingMilitia.TimingSampleBenchmarksApplication.Service
 {
@@ -16,24 +17,21 @@ namespace CodingMilitia.TimingSampleBenchmarksApplication.Service
 
         public void DoTimeConsumingStuff()
         {
-            //DateTime doesn't have the best precision, but it's enough for this sample
-            DateTime requestStartTime = DateTime.Now;
-            _logger?.LogDebug(string.Format("{0}.{1}() started at - {2}",
+
+            _logger?.LogDebug(string.Format("Entered {0}.{1}()",
                 _continuation.GetType().Name,
-                nameof(DoTimeConsumingStuff),
-                requestStartTime));
+                nameof(DoTimeConsumingStuff)));
+            var watch = Stopwatch.StartNew();
             try
             {
                 _continuation.DoTimeConsumingStuff();
             }
             finally
             {
-                DateTime requestEndTime = DateTime.Now;
-                _logger?.LogDebug(string.Format("{0}.{1}() ended at - {2} - took around {3}ms to complete",
+                _logger?.LogDebug(string.Format("Exiting {0}.{1}() - took around {2}ms to complete",
                     _continuation.GetType().Name,
                     nameof(DoTimeConsumingStuff),
-                    requestEndTime,
-                    (requestEndTime - requestStartTime).TotalMilliseconds));
+                    watch.ElapsedMilliseconds));
             }
         }
     }

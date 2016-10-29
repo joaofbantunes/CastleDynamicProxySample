@@ -1,6 +1,7 @@
 ﻿using Castle.DynamicProxy;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Diagnostics;
 
 namespace CodingMilitia.CastleDynamicProxySample.Timing
 {
@@ -14,24 +15,22 @@ namespace CodingMilitia.CastleDynamicProxySample.Timing
 
         void IInterceptor.Intercept(IInvocation invocation)
         {
-            //DateTime doesn't have the best precision, but it's enough for this sample
-            DateTime requestStartTime = DateTime.Now;
-            _logger?.LogDebug(string.Format("{0}.{1}() started at - {2}", 
+            _logger?.LogDebug(string.Format("Entered {0}.{1}()", 
                 invocation.MethodInvocationTarget.DeclaringType, 
-                invocation.MethodInvocationTarget.Name, 
-                requestStartTime));
+                invocation.MethodInvocationTarget.Name));
+            var watch = Stopwatch.StartNew();
             try
             {
                 invocation.Proceed();
             }
             finally
             {
-                DateTime requestEndTime = DateTime.Now;
-                _logger?.LogDebug(string.Format("{0}.{1}() ended at - {2} - took around {3}ms to complete", 
-                    invocation.MethodInvocationTarget.DeclaringType,
-                    invocation.MethodInvocationTarget.Name,
-                    requestEndTime, 
-                    (requestEndTime - requestStartTime).TotalMilliseconds));
+                watch.Stop();
+
+                _logger?.LogDebug(string.Format("Exiting {0}.{1}() - took around {2}ms to complete",
+              invocation.MethodInvocationTarget.DeclaringType,
+              invocation.MethodInvocationTarget.Name,
+              watch.ElapsedMilliseconds));
             }
         }
     }
