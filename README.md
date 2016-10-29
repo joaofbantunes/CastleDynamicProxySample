@@ -42,7 +42,7 @@ Host Process Environment Information:
 BenchmarkDotNet.Core=v0.9.9.0
 OS=Windows
 Processor=?, ProcessorCount=8
-Frequency=2740588 ticks, Resolution=364.8852 ns, Timer=TSC
+Frequency=2740587 ticks, Resolution=364.8853 ns, Timer=TSC
 CLR=CORE, Arch=64-bit ? [RyuJIT]
 GC=Concurrent Workstation
 dotnet cli version: 1.0.0-preview2-003133
@@ -52,8 +52,8 @@ Type=TimingBenchmark  Mode=Throughput
 ```
        Method |      Median |    StdDev |
 ------------- |------------ |---------- |
- DynamicProxy | 963.4282 ns | 6.8242 ns |
-    Decorator | 866.9434 ns | 4.6971 ns |
+ DynamicProxy | 138.0734 ns | 3.1976 ns |
+    Decorator |  51.3174 ns | 1.6385 ns |
     
 This is a better example to check the performance difference between the proxy and the decorator approachs than the CacheInterceptor, because to do the timing of the operation we don't need so much "magic" going on in the interceptor.
 
