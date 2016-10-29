@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Castle.DynamicProxy;
+﻿using Castle.DynamicProxy;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections;
+using System.Linq;
 
 namespace CodingMilitia.CastleDynamicProxySample.Caching
 {
@@ -12,22 +10,24 @@ namespace CodingMilitia.CastleDynamicProxySample.Caching
     {
         private readonly ICache _cacheProvider;
         private readonly ILogger<CacheInterceptor> _logger;
-        private readonly IDictionary<string, Func<object[], string>> _customCacheKeyGenerators;
-        private readonly IDictionary<string, TimeSpan> _cacheTtLs;
-        private readonly TimeSpan? _defaultTtl;
+        private readonly ICacheKeyCreationStrategy _cacheKeyCreationStrategy;
+        private readonly IConfigurationGetter _configurationGetter;
+        private readonly TimeSpan _defaultTtl;
 
-        public CacheInterceptor(ICache cacheProvider, ILoggerFactory loggerFactory,
-            IDictionary<string, Func<object[], string>> customCacheKeyGenerators,
-            IDictionary<string, TimeSpan> cacheTtLs, TimeSpan? defaultTtl = null)
+        public CacheInterceptor(ICache cacheProvider, 
+                                ILoggerFactory loggerFactory,
+                                ICacheKeyCreationStrategy cacheKeyCreationStrategy,
+                                IConfigurationGetter configurationGetter,
+                                TimeSpan defaultTtl)
         {
+            ThrowIfNoCacheProvider(cacheProvider);
+            ThrowIfNoCacheKeyCreationStrategy(cacheKeyCreationStrategy);
+
             _cacheProvider = cacheProvider;
             _logger = loggerFactory?.CreateLogger<CacheInterceptor>();
-            _customCacheKeyGenerators = customCacheKeyGenerators;
-            _cacheTtLs = cacheTtLs ?? new Dictionary<string, TimeSpan>();
+            _cacheKeyCreationStrategy = cacheKeyCreationStrategy;
+            _configurationGetter = configurationGetter;
             _defaultTtl = defaultTtl;
-
-            ThrowIfNoCacheProvider(cacheProvider);
-            ThrowIfNoTtlsAreProvided(cacheTtLs, defaultTtl);
         }
 
         public void Intercept(IInvocation invocation)
@@ -35,28 +35,21 @@ namespace CodingMilitia.CastleDynamicProxySample.Caching
             try
             {
                 _logger?.LogDebug("Enter interceptor for {0}.{1} ", invocation.TargetType, invocation.Method.Name);
-                var helper = new CacheInterceptionHelper(invocation, _cacheProvider, _logger, _customCacheKeyGenerators, _cacheTtLs, _defaultTtl);
+                var config = _configurationGetter.Get(invocation);
+                var cacheKey = config.UseCache ? _cacheKeyCreationStrategy.Create(config.MethodId, invocation) : null;
                 object value;
-                if (helper.TryGetFromCache(out value))
+                if (config.UseCache && TryGetFromCache(cacheKey, out value))
                 {
                     invocation.ReturnValue = value;
                     return;
                 }
                 invocation.Proceed();
                 value = invocation.ReturnValue;
-                helper.AddToCache(value);
+                AddToCache(cacheKey, config, value);
             }
             finally
             {
                 _logger?.LogDebug("Exit interceptor for {0}.{1} ", invocation.TargetType, invocation.Method.Name);
-            }
-        }
-
-        private static void ThrowIfNoTtlsAreProvided(IDictionary<string, TimeSpan> cacheTtLs, TimeSpan? defaultTtl)
-        {
-            if ((cacheTtLs == null || !cacheTtLs.Any()) && defaultTtl == null)
-            {
-                throw new ArgumentException($"One of \"{nameof(cacheTtLs)}\" or \"{nameof(defaultTtl)}\" must be provided.");
             }
         }
 
@@ -68,158 +61,44 @@ namespace CodingMilitia.CastleDynamicProxySample.Caching
             }
         }
 
-
-        private class CacheInterceptionHelper
+        private static void ThrowIfNoCacheKeyCreationStrategy(ICacheKeyCreationStrategy cacheKeyCreationStrategy)
         {
-            private readonly ICache _cacheProvider;
-            private readonly ILogger _logger;
-            private readonly IDictionary<string, Func<object[], string>> _customCacheKeyGenerators;
-            private readonly IDictionary<string, TimeSpan> _cacheTtLs;
-            private readonly TimeSpan? _defaultTtl;
-            private readonly IInvocation _invocation;
-            private readonly CacheInterceptorConfigurationAttribute _configAttribute;
-            private readonly bool _useCache;
-            private readonly string _cacheKey;
-
-            public CacheInterceptionHelper(IInvocation invocation, ICache cacheProvider, ILogger logger,
-                IDictionary<string, Func<object[], string>> customCacheKeyGenerators,
-                IDictionary<string, TimeSpan> cacheTtLs, TimeSpan? defaultTtl = null)
+            if (cacheKeyCreationStrategy == null)
             {
-                _invocation = invocation;
-                _cacheProvider = cacheProvider;
-                _logger = logger;
-                _customCacheKeyGenerators = customCacheKeyGenerators;
-                _cacheTtLs = cacheTtLs;
-                _defaultTtl = defaultTtl;
-
-                _configAttribute = GetAttribute(invocation);
-                if (_configAttribute != null && _configAttribute.UseCache)
-                {
-                    _useCache = true;
-                    _cacheKey = GetConfiguredCacheKey(invocation, _configAttribute) ??
-                                CreateCacheKey(invocation, _configAttribute);
-
-                    if (string.IsNullOrWhiteSpace(_cacheKey))
-                        throw new Exception("Failed to obtain a cache key");
-                }
-                else
-                {
-                    _useCache = false;
-                    _cacheKey = null;
-                    _logger?.LogDebug("No caching for {0}.{1} ", invocation.TargetType, invocation.Method.Name);
-                }
+                throw new ArgumentException($"\"{nameof(cacheKeyCreationStrategy)}\" is mandatory.");
             }
+        }
 
-            public bool TryGetFromCache(out object cached)
-            {
-                cached = null;
-                var isInCache = false;
-                if(_useCache)
-                {
-                    var cachedValue = _cacheProvider.Get(_cacheKey);
-                    isInCache = cachedValue.HasValue;
-                    cached = isInCache ? cachedValue.Value : null;
-                }	
-                return isInCache;
-            }
+        public bool TryGetFromCache(string cacheKey, out object cached)
+        {
+            var cachedValue = _cacheProvider.Get(cacheKey);
+            var isInCache = cachedValue.HasValue;
+            cached = isInCache ? cachedValue.Value : null;
+            return isInCache;
+        }
 
-            public void AddToCache(object toCache)
-            {
-                //if there is no config attribute, then no cache is used, return immediately
-                if (!_useCache)
-                    return;
+        public void AddToCache(string cacheKey, MethodCacheConfiguration config, object toCache)
+        {
+            //if there is no config attribute, then no cache is used, return immediately
+            if (!config.UseCache)
+                return;
 
-                //if the return is null it's only cached if explicitly indicated in the attribute CacheNullValues
-                if (!_configAttribute.CacheNullValues && toCache == null)
-                    return;
+            //if the return is null it's only cached if explicitly indicated in the attribute CacheNullValues
+            if (!config.CacheNullValues && toCache == null)
+                return;
 
-                //if the return is an empty collection it's only cached if explicitly indicated in the attribute CacheEmptyCollectionValues
-                if (!_configAttribute.CacheEmptyCollectionValues && toCache is IEnumerable && !CollectionHasElements((IEnumerable)toCache))
-                    return;
+            //if the return is an empty collection it's only cached if explicitly indicated in the attribute CacheEmptyCollectionValues
+            if (!config.CacheEmptyCollectionValues && toCache is IEnumerable && !CollectionHasElements((IEnumerable)toCache))
+                return;
 
-                var ttl = GetTtl();
-                
-                _cacheProvider.Add(_cacheKey, toCache, ttl);
-            }
+            var ttl = config.Ttl ?? _defaultTtl;
 
-            private static CacheInterceptorConfigurationAttribute GetAttribute(IInvocation invocation)
-            {
-                var configAttribute = invocation.MethodInvocationTarget
-                    .GetCustomAttribute(typeof(CacheInterceptorConfigurationAttribute), false) as CacheInterceptorConfigurationAttribute;
-                return configAttribute;
-            }
+            _cacheProvider.Add(cacheKey, toCache, ttl);
+        }
 
-            private string GetConfiguredCacheKey(IInvocation invocation,
-                CacheInterceptorConfigurationAttribute configAttribute)
-            {
-                if (_customCacheKeyGenerators != null && !string.IsNullOrWhiteSpace(configAttribute.MethodKey) &&
-                    _customCacheKeyGenerators.ContainsKey(configAttribute.MethodKey))
-                {
-                    var cacheKey = _customCacheKeyGenerators[configAttribute.MethodKey](invocation.Arguments);
-                    _logger?.LogDebug($"Fetched configured cache key: \"{cacheKey}\"");
-                    return cacheKey;
-                }
-                return null;
-            }
-
-            private string CreateCacheKey(IInvocation invocation, CacheInterceptorConfigurationAttribute configAttribute)
-            {
-                var argumentsToIgnore = configAttribute.ArgumentsToIgnoreOnKeyCreation ?? Array.Empty<string>();
-                //fetch generic arguments and parameters
-                var genericArguments = invocation.GenericArguments ?? Array.Empty<Type>();
-                var parameters = invocation.MethodInvocationTarget.GetParameters();
-
-                //prepare parameters string representation "type name: value"
-                var parametersString = new List<string>();
-                for (var i = 0; i < parameters.Count(); ++i)
-                {
-                    var parameterInfo = parameters[i];
-                    if (argumentsToIgnore.Contains(parameterInfo.Name))
-                    {
-                        continue;
-                    }
-                    parametersString.Add(string.Format("{0} {1}:{2}", parameterInfo.ParameterType, parameterInfo.Name,
-                        invocation.Arguments[i]));
-                }
-
-                //construct the cache key, "<generic arguments>full type name.method name(parameters)"
-                var cacheKey = string.Format("<{0}>{1}.{2}({3})",
-                    string.Join(",", genericArguments.Select(ga => ga.Name)),
-                    invocation.TargetType.FullName,
-                    invocation.MethodInvocationTarget.Name,
-                    string.Join(",", parametersString)
-                );
-
-                _logger?.LogDebug($"Created cache key: \"{cacheKey}\"");
-                return cacheKey;
-            }
-
-            private static bool CollectionHasElements(IEnumerable collection)
-            {
-                return collection.Cast<object>().Any();
-            }
-
-            private TimeSpan GetTtl()
-            {
-                TimeSpan ttl;
-                //get the ttl or throw error if it cannot be found
-                if (_cacheTtLs.ContainsKey(_configAttribute.MethodKey))
-                {
-                    ttl = _cacheTtLs[_configAttribute.MethodKey];
-                }
-                else if (_defaultTtl != null)
-                {
-                    ttl = _defaultTtl.Value;
-                    //using the defaultTTL should not be the norm, so log as debug when it happens
-                    _logger?.LogDebug($"Using the default ttl for method: \"{_configAttribute.MethodKey}\"");
-                }
-                else
-                {
-                    throw new Exception(
-                        $"Could not get a TTL for method \"{_configAttribute.MethodKey}\". Define it in the dicionary or provide a defaultTTL");
-                }
-                return ttl;
-            }
+        private static bool CollectionHasElements(IEnumerable collection)
+        {
+            return collection.Cast<object>().Any();
         }
     }
 }

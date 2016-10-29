@@ -5,7 +5,10 @@ using CodingMilitia.CachingSampleApplication.Service;
 using CodingMilitia.CastleDynamicProxySample;
 using CodingMilitia.CastleDynamicProxySample.Caching;
 using Microsoft.Extensions.Logging;
-
+using CodingMilitia.CastleDynamicProxySample.Caching.CacheKeyCreation.Composite;
+using CodingMilitia.CastleDynamicProxySample.Caching.CacheKeyCreation.Configuration;
+using CodingMilitia.CastleDynamicProxySample.Caching.CacheKeyCreation.Reflection;
+using CodingMilitia.CastleDynamicProxySample.Caching.Configuration;
 
 namespace CodingMilitia.CachingSampleApplication
 {
@@ -26,7 +29,11 @@ namespace CodingMilitia.CachingSampleApplication
 
             var loggerFactory = new LoggerFactory().AddConsole(LogLevel.Trace);
             var cache = new MockCache(loggerFactory);
-            var cacheInterceptor = new CacheInterceptor(cache, loggerFactory, cacheKeyGenerators, cacheTTLs,
+            var cacheInterceptor = new CacheInterceptor(cache, loggerFactory,
+                new CompositeCacheKeyCreationStrategy(loggerFactory,
+                    new ConfigurationBasedCacheKeyCreationStrategy(cacheKeyGenerators, loggerFactory),
+                    new ReflectionBasedCacheKeyCreationStrategy(null, loggerFactory)),
+                new AttributeBasedConfigurationGetter(cacheTTLs),
                 new TimeSpan(0, 2, 0));
             var proxyGenerator = new ProxyGenerator();
             var service = new StuffService();

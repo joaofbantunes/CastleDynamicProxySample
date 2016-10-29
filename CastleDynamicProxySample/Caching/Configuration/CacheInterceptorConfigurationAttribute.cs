@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CodingMilitia.CastleDynamicProxySample.Caching
+namespace CodingMilitia.CastleDynamicProxySample.Caching.Configuration
 {
     /// <summary>
     /// Class that represents an attribute that should be used to configure the caching of a method result.
@@ -9,14 +9,8 @@ namespace CodingMilitia.CastleDynamicProxySample.Caching
     public class CacheInterceptorConfigurationAttribute : Attribute
     {
         public bool UseCache { get; set; }
-        public string MethodKey { get; set; }
-        public string[] ArgumentsToIgnoreOnKeyCreation { get; set; }
+        public string MethodId { get; set; }
         public bool CacheNullValues { get; set; }
         public bool CacheEmptyCollectionValues { get; set; }
-
-        public CacheInterceptorConfigurationAttribute()
-        {
-        }
-
     }
 }

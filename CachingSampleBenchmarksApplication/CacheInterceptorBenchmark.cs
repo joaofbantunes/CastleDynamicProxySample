@@ -3,6 +3,10 @@ using CodingMilitia.CachingSampleBenchmarksApplication.Mock;
 using CodingMilitia.CachingSampleBenchmarksApplication.Service;
 using CodingMilitia.CastleDynamicProxySample;
 using CodingMilitia.CastleDynamicProxySample.Caching;
+using CodingMilitia.CastleDynamicProxySample.Caching.CacheKeyCreation.Composite;
+using CodingMilitia.CastleDynamicProxySample.Caching.CacheKeyCreation.Configuration;
+using CodingMilitia.CastleDynamicProxySample.Caching.CacheKeyCreation.Reflection;
+using CodingMilitia.CastleDynamicProxySample.Caching.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +27,12 @@ namespace CodingMilitia.CachingSampleBenchmarksApplication
             };
 
             var cache = new MockCache(null);
-            var cacheInterceptor = new CacheInterceptor(cache, null, cacheKeyGenerators, null, new TimeSpan(0, 2, 0));
+            var cacheInterceptor = new CacheInterceptor(cache, null,
+                new CompositeCacheKeyCreationStrategy(null,
+                    new ConfigurationBasedCacheKeyCreationStrategy(cacheKeyGenerators, null),
+                    new ReflectionBasedCacheKeyCreationStrategy(null, null)),
+                new AttributeBasedConfigurationGetter(null),
+                new TimeSpan(0, 2, 0));
             var proxyGenerator = new ProxyGenerator();
             var service = new StuffService();
             _proxiedService = proxyGenerator.CreateInterfaceProxyWithTarget<IStuffService>(service, cacheInterceptor);
