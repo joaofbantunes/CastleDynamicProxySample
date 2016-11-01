@@ -33,6 +33,7 @@ Type=CacheBenchmark  Mode=Throughput
                DecoratorAsync |    503.9454 ns |    29.7041 ns |
 
 We can see there is a difference in the order of magnitute between the proxy approach and the decorator approach. This is not due (mostly) with using the DynamicProxy, but because this approach requires some under the hood "magic" to work (intercept only the correct methods, creating the cache keys dynamically and so on) that the decorator doesn't because it's coded for each specific situation.
+
 It's also visible that, to support async methods, there's a bit more overhead, as a little more reflection is used.
 
 ## TimingInterceptor
@@ -64,7 +65,8 @@ Type=TimingBenchmark  Mode=Throughput
     DecoratorWithResultAsync |   134.1244 ns |   1.7090 ns |
     
 This is a better example to check the performance difference between the proxy and the decorator approaches than the CacheInterceptor, because to do the timing of the operation we don't need so much "magic" going on in the interceptor.
-We can see that when using async methods, mainly the ones that return Task<T> instead of just Task, there is a more noticeable performance penalty due to the use of reflection needed to implment this scenario.
+
+We can see that when using async methods, mainly the ones that return `Task<T>` instead of just `Task`, there is a more noticeable performance penalty due to the use of reflection, needed to implement this scenario.
 
 ## TODO
 * Better test async method support.
