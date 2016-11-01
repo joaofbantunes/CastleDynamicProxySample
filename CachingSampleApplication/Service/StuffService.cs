@@ -1,5 +1,6 @@
 ﻿using CodingMilitia.CastleDynamicProxySample.Caching;
 using CodingMilitia.CastleDynamicProxySample.Caching.Configuration;
+using System.Threading.Tasks;
 
 namespace CodingMilitia.CachingSampleApplication.Service
 {
@@ -13,6 +14,9 @@ namespace CodingMilitia.CachingSampleApplication.Service
 
         [CacheInterceptorConfiguration(MethodId = "GetGenericStuffKey", UseCache = true)]
         public TOut GetGenericStuff<TOut, TIn>(TIn stuffId, TOut stuffToReturn) => stuffToReturn;
+
+        [CacheInterceptorConfiguration(MethodId = "GetGenericStuffAsyncKey", UseCache = true)]
+        public Task<TOut> GetGenericStuffAsync<TOut, TIn>(TIn stuffId, TOut stuffToReturn) => Task.FromResult(stuffToReturn);
 
         public string GetStuffWithoutCache(string stuffId) => "Returning " + stuffId + " without being cached";
     }

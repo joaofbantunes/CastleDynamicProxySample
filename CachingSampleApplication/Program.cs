@@ -9,6 +9,7 @@ using CodingMilitia.CastleDynamicProxySample.Caching.CacheKeyCreation.Composite;
 using CodingMilitia.CastleDynamicProxySample.Caching.CacheKeyCreation.Configuration;
 using CodingMilitia.CastleDynamicProxySample.Caching.CacheKeyCreation.Reflection;
 using CodingMilitia.CastleDynamicProxySample.Caching.Configuration;
+using System.Threading.Tasks;
 
 namespace CodingMilitia.CachingSampleApplication
 {
@@ -48,6 +49,9 @@ namespace CodingMilitia.CachingSampleApplication
             WriteSeparator();
             Console.WriteLine(nameof(proxiedService.GetGenericStuff));
             Console.WriteLine(proxiedService.GetGenericStuff<string, int>(1, "Return This"));
+            WriteSeparator();
+            Console.WriteLine(nameof(proxiedService.GetGenericStuffAsync));
+            Console.WriteLine(proxiedService.GetGenericStuffAsync<string, int>(1, "Return This Async").Result);
             WriteSeparator();
             Console.WriteLine(nameof(proxiedService.GetStuffWithoutCache));
             Console.WriteLine(proxiedService.GetStuffWithoutCache("Identifier"));

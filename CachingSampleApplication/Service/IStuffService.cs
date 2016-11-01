@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace CodingMilitia.CachingSampleApplication.Service
 {
@@ -10,6 +11,8 @@ namespace CodingMilitia.CachingSampleApplication.Service
 
         TOut GetGenericStuff<TOut, TIn>(TIn stuffId, TOut stuffToReturn);
 
-        string GetStuffWithoutCache(string stuffId);
+        Task<TOut> GetGenericStuffAsync<TOut, TIn>(TIn stuffId, TOut stuffToReturn);
+
+        string GetStuffWithoutCache(string stuffId);        
     }
 }

@@ -23,7 +23,8 @@ namespace CodingMilitia.CachingSampleBenchmarksApplication
         {
             IDictionary<string, Func<object[], string>> cacheKeyGenerators = new Dictionary<string, Func<object[], string>>
             {
-                {"GetGenericStuffKey", ConfiguredKeyGenerator}
+                {"GetGenericStuffKey", ConfiguredKeyGenerator},
+                {"GetGenericStuffAsyncKey", ConfiguredKeyGenerator}
             };
 
             var cache = new MockCache(null);
@@ -52,9 +53,27 @@ namespace CodingMilitia.CachingSampleBenchmarksApplication
         }
 
         [Benchmark]
+        public void ProxyWithGeneratedKeysAsync()
+        {
+            Task.WaitAll(_proxiedService.GetGenericStuffGenerateKeyAsync("Id", "Return"));
+        }
+
+        [Benchmark]
+        public void ProxyWithConfiguredKeysAsync()
+        {
+            Task.WaitAll(_proxiedService.GetGenericStuffAsync("Id", "Return"));
+        }
+
+        [Benchmark]
         public void Decorator()
         {
             _decoratedService.GetGenericStuff("Id", "Return");
+        }
+
+        [Benchmark]
+        public void DecoratorAsync()
+        {
+            Task.WaitAll(_decoratedService.GetGenericStuffAsync("Id", "Return"));
         }
 
         private static string ConfiguredKeyGenerator(params object[] methodArguments)

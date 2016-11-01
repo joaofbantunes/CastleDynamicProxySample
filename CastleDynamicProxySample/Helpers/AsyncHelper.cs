@@ -26,7 +26,7 @@ namespace CodingMilitia.CastleDynamicProxySample.Helpers
             }
         }
 
-        public static async Task<T> AwaitTaskWithFinallyAndGetResult<T>(Task<T> actualReturnValue, Action finallyAction)
+        public static async Task<T> AwaitTaskWithFinallyAndGetResult<T>(Task<T> actualReturnValue, Action<T> finallyAction)
         {
             try
             {
@@ -34,7 +34,7 @@ namespace CodingMilitia.CastleDynamicProxySample.Helpers
             }
             finally
             {
-                finallyAction();
+                finallyAction(actualReturnValue.Result);
             }
         }
     }

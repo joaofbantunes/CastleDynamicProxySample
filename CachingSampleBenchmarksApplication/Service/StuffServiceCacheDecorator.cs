@@ -46,5 +46,31 @@ namespace CodingMilitia.CachingSampleBenchmarksApplication.Service
         {
             throw new NotImplementedException();
         }
+
+        public Task<TOut> GetGenericStuffAsync<TOut, TIn>(TIn stuffId, TOut stuffToReturn)
+        {
+            try
+            {
+                _logger?.LogDebug("Enter decorator for {0}.{1} ", _continuation.GetType().Name, nameof(GetGenericStuff));
+                string cacheKey = $"GetGenericStuff(\"{stuffId}\",\"{stuffToReturn}\")";
+                var cachedValue = _cache.Get(cacheKey);
+                if (cachedValue.HasValue)
+                {
+                    return Task.FromResult((TOut)cachedValue.Value);
+                }
+                var value = _continuation.GetGenericStuff(stuffId, stuffToReturn);
+                _cache.Add(cacheKey, stuffToReturn, _ttl);
+                return Task.FromResult(value);
+            }
+            finally
+            {
+                _logger?.LogDebug("Exit decorator for {0}.{1} ", _continuation.GetType().Name, nameof(GetGenericStuff));
+            }
+        }
+
+        public Task<TOut> GetGenericStuffGenerateKeyAsync<TOut, TIn>(TIn stuffId, TOut stuffToReturn)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
