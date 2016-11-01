@@ -2,6 +2,7 @@
 using CodingMilitia.TimingSampleBenchmarksApplication.Service;
 using CodingMilitia.CastleDynamicProxySample;
 using CodingMilitia.CastleDynamicProxySample.Timing;
+using System.Threading.Tasks;
 
 namespace CodingMilitia.TimingSampleBenchmarksApplication
 {
@@ -24,11 +25,33 @@ namespace CodingMilitia.TimingSampleBenchmarksApplication
         {
             _proxiedService.DoTimeConsumingStuff();
         }
+        [Benchmark]
+        public void DynamicProxyAsync()
+        {
+            Task.WaitAll(_proxiedService.DoTimeConsumingStuffAsync());
+            
+        }
+        [Benchmark]
+        public void DynamicProxyWithResultAsync()
+        {
+            Task.WaitAll(_proxiedService.DoTimeConsumingStuffAndGetAsync());
+        }
 
         [Benchmark]
         public void Decorator()
         {
             _decoratedService.DoTimeConsumingStuff();
+        }
+        [Benchmark]
+        public void DecoratorAsync()
+        {
+            Task.WaitAll(_decoratedService.DoTimeConsumingStuffAsync());
+
+        }
+        [Benchmark]
+        public void DecoratorWithResultAsync()
+        {
+            Task.WaitAll(_decoratedService.DoTimeConsumingStuffAndGetAsync());
         }
     }
 }
