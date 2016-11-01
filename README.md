@@ -68,8 +68,5 @@ This is a better example to check the performance difference between the proxy a
 
 We can see that when using async methods, mainly the ones that return `Task<T>` instead of just `Task`, there is a more noticeable performance penalty due to the use of reflection, needed to implement this scenario.
 
-## TODO
-* Better test async method support.
-
 ### Note
 This code was not thoroughly tested so if you find it useful and want to use some or all of it, be sure to write some unit tests for it.
