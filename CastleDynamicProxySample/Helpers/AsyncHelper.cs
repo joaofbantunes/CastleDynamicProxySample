@@ -26,7 +26,7 @@ namespace CodingMilitia.CastleDynamicProxySample.Helpers
             }
         }
 
-        public static async Task<T> AwaitTaskWithFinallyAndGetResult<T>(Task<T> actualReturnValue, Action<T> finallyAction)
+        public static async Task<T> AwaitTaskWithFinallyAndGetResult<T>(Task<T> actualReturnValue, Action<object> finallyAction)
         {
             try
             {
