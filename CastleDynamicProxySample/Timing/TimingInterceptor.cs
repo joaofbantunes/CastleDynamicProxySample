@@ -42,14 +42,14 @@ namespace CodingMilitia.CastleDynamicProxySample.Timing
         {
             var watch = Stopwatch.StartNew();
             invocation.Proceed();
-            Action finallyLog = () => LogExiting(invocation, watch);
             if (invocation.Method.ReturnType == typeof(Task))
             {
                 
-                invocation.ReturnValue = AsyncHelper.AwaitTaskWithFinally((Task)invocation.ReturnValue, finallyLog);
+                invocation.ReturnValue = AsyncHelper.AwaitTaskWithFinally((Task)invocation.ReturnValue, () => LogExiting(invocation, watch));
             }
             else //Task<TResult>
             {
+                Action<object> finallyLog = (value) => LogExiting(invocation, watch);
                 invocation.ReturnValue = GetGenericMethod(invocation).Invoke(null, new object[] { invocation.ReturnValue, finallyLog });
             }
         }
