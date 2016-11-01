@@ -13,6 +13,7 @@ namespace CodingMilitia.CachingSampleApplication.Service
 
         Task<TOut> GetGenericStuffAsync<TOut, TIn>(TIn stuffId, TOut stuffToReturn);
 
-        string GetStuffWithoutCache(string stuffId);        
+        string GetStuffWithoutCache(string stuffId);
+        Task<int> GetStatusCodeAsync();
     }
 }

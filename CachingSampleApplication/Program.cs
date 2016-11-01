@@ -56,6 +56,9 @@ namespace CodingMilitia.CachingSampleApplication
             Console.WriteLine(nameof(proxiedService.GetStuffWithoutCache));
             Console.WriteLine(proxiedService.GetStuffWithoutCache("Identifier"));
             WriteSeparator();
+            Console.WriteLine(nameof(proxiedService.GetStatusCodeAsync));
+            Console.WriteLine(proxiedService.GetStatusCodeAsync().Result);
+            WriteSeparator();
         }
 
         private static void WriteSeparator()
