@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace CodingMilitia.CastleDynamicProxySample.Helpers
@@ -11,6 +12,30 @@ namespace CodingMilitia.CastleDynamicProxySample.Helpers
                 method.ReturnType == typeof(Task) ||
                 (method.ReturnType.GetTypeInfo().IsGenericType && method.ReturnType.GetGenericTypeDefinition() == typeof(Task<>))
                 );
+        }
+
+        public static async Task AwaitTaskWithFinally(Task actualReturnValue, Action finallyAction)
+        {
+            try
+            {
+                await actualReturnValue;
+            }
+            finally
+            {
+                finallyAction();
+            }
+        }
+
+        public static async Task<T> AwaitTaskWithFinallyAndGetResult<T>(Task<T> actualReturnValue, Action finallyAction)
+        {
+            try
+            {
+                return await actualReturnValue;
+            }
+            finally
+            {
+                finallyAction();
+            }
         }
     }
 }

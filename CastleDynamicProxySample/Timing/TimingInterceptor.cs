@@ -42,13 +42,15 @@ namespace CodingMilitia.CastleDynamicProxySample.Timing
         {
             var watch = Stopwatch.StartNew();
             invocation.Proceed();
+            Action finallyLog = () => LogExiting(invocation, watch);
             if (invocation.Method.ReturnType == typeof(Task))
             {
-                invocation.ReturnValue = AwaitTaskWithFinally(invocation, watch);
+                
+                invocation.ReturnValue = AsyncHelper.AwaitTaskWithFinally((Task)invocation.ReturnValue, finallyLog);
             }
             else //Task<TResult>
             {
-                invocation.ReturnValue = GetGenericMethod(invocation).Invoke(this, new object[] { invocation, watch });
+                invocation.ReturnValue = GetGenericMethod(invocation).Invoke(null, new object[] { invocation.ReturnValue, finallyLog });
             }
         }
 
@@ -80,36 +82,12 @@ namespace CodingMilitia.CastleDynamicProxySample.Timing
             MethodInfo genericMethod;
             if (!_genericMethodCache.TryGetValue(genericReturnType, out genericMethod))
             {
-                genericMethod = GetType().GetTypeInfo()
-                            .GetMethod(nameof(AwaitTaskWithFinallyAndGetResult), BindingFlags.NonPublic | BindingFlags.Instance)
+                genericMethod = typeof(AsyncHelper)
+                            .GetMethod(nameof(AsyncHelper.AwaitTaskWithFinallyAndGetResult), BindingFlags.Public | BindingFlags.Static)
                             .MakeGenericMethod(genericReturnType);
                 _genericMethodCache[genericReturnType] = genericMethod;
             }
             return genericMethod;
-        }
-
-        private async Task AwaitTaskWithFinally(IInvocation invocation, Stopwatch watch)
-        {
-            try
-            {
-                await (Task)invocation.ReturnValue;
-            }
-            finally
-            {
-                LogExiting(invocation, watch);
-            }
-        }
-
-        private async Task<T> AwaitTaskWithFinallyAndGetResult<T>(IInvocation invocation, Stopwatch watch)
-        {
-            try
-            {
-                return await (Task<T>)invocation.ReturnValue;
-            }
-            finally
-            {
-                LogExiting(invocation, watch);
-            }
         }
     }
 }
