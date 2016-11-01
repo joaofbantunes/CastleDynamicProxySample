@@ -12,5 +12,6 @@ namespace CodingMilitia.CastleDynamicProxySample.Caching.Configuration
         public string MethodId { get; set; }
         public bool CacheNullValues { get; set; }
         public bool CacheEmptyCollectionValues { get; set; }
+        public string Ttl { get; set; }
     }
 }

@@ -7,13 +7,13 @@ namespace CodingMilitia.CachingSampleApplication.Service
 {
     public class StuffService : IStuffService
     {
-        [CacheInterceptorConfiguration(MethodId = "GetStuffKey", UseCache = true)]
+        [CacheInterceptorConfiguration(MethodId = "GetStuffKey", UseCache = true, Ttl = "00:05:00")]
         public string GetStuff(string stuffId) => "Returning " + stuffId;
 
         [CacheInterceptorConfiguration(MethodId = "GetSomeMoreStuffKey", UseCache = true)]
         public string[] GetSomeMoreStuff() => new string[] {"One Stuff", "Two Stuff"};
 
-        [CacheInterceptorConfiguration(MethodId = "GetGenericStuffKey", UseCache = true)]
+        [CacheInterceptorConfiguration(MethodId = "GetGenericStuffKey", UseCache = true, Ttl = "00:03:00")]
         public TOut GetGenericStuff<TOut, TIn>(TIn stuffId, TOut stuffToReturn) => stuffToReturn;
 
         [CacheInterceptorConfiguration(MethodId = "GetGenericStuffAsyncKey", UseCache = true)]

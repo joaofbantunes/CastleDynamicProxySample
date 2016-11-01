@@ -32,7 +32,7 @@ namespace CodingMilitia.CachingSampleBenchmarksApplication
                 new CompositeCacheKeyCreationStrategy(null,
                     new ConfigurationBasedCacheKeyCreationStrategy(cacheKeyGenerators, null),
                     new ReflectionBasedCacheKeyCreationStrategy(null, null)),
-                new AttributeBasedConfigurationGetter(null),
+                new AttributeBasedConfigurationGetter(),
                 new TimeSpan(0, 2, 0));
             var proxyGenerator = new ProxyGenerator();
             var service = new StuffService();

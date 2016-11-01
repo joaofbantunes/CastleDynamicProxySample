@@ -17,12 +17,6 @@ namespace CodingMilitia.CachingSampleApplication
     {
         public static void Main(string[] args)
         {
-            IDictionary<string, TimeSpan> cacheTTLs = new Dictionary<string, TimeSpan>
-            {
-                {"GetStuffKey", new TimeSpan(0, 5, 0)},
-                {"GetGenericStuffKey", new TimeSpan(0, 3, 0)}
-            };
-
             IDictionary<string, Func<object[], string>> cacheKeyGenerators = new Dictionary<string, Func<object[], string>>
             {
                 {"GetSomeMoreStuffKey", GenerateRandomKey}
@@ -34,7 +28,7 @@ namespace CodingMilitia.CachingSampleApplication
                 new CompositeCacheKeyCreationStrategy(loggerFactory,
                     new ConfigurationBasedCacheKeyCreationStrategy(cacheKeyGenerators, loggerFactory),
                     new ReflectionBasedCacheKeyCreationStrategy(null, loggerFactory)),
-                new AttributeBasedConfigurationGetter(cacheTTLs),
+                new AttributeBasedConfigurationGetter(),
                 new TimeSpan(0, 2, 0));
             var proxyGenerator = new ProxyGenerator();
             var service = new StuffService();
