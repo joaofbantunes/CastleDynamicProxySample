@@ -104,18 +104,9 @@ namespace CodingMilitia.CastleDynamicProxySample.Caching
                 return;
             }
             invocation.Proceed();
-            Action<object> addToCacheAndLog = (result) =>
-            {
-                try
-                {
-                    AddToCache(cacheKey, config, result);
-                }
-                finally
-                {
-                    LogExiting(invocation);
-                }
-            };
-            invocation.ReturnValue = GetAwaitAndGetResultMethod(invocation).Invoke(null, new object[] { invocation.ReturnValue, addToCacheAndLog });
+            Action<object> addToCacheAction = (result) => AddToCache(cacheKey, config, result);
+            Action logExitingAction = () => LogExiting(invocation);
+            invocation.ReturnValue = GetAwaitAndGetResultMethod(invocation).Invoke(null, new object[] { invocation.ReturnValue, addToCacheAction, logExitingAction });
         }
         #endregion proceed
 
@@ -173,13 +164,13 @@ namespace CodingMilitia.CastleDynamicProxySample.Caching
         private MethodInfo GetAwaitAndGetResultMethod(IInvocation invocation)
         {
             return GetFromCacheOrCreateMethod(_awaitAndGetResultCache,
-                invocation.Method.ReturnType.GenericTypeArguments[0], 
+                invocation.Method.ReturnType.GenericTypeArguments[0],
                 typeof(AsyncHelper),
-                nameof(AsyncHelper.AwaitTaskWithFinallyAndGetResult), 
+                nameof(AsyncHelper.AwaitTaskWithFinallyAndGetResult),
                 BindingFlags.Public | BindingFlags.Static);
         }
 
-        private static MethodInfo GetFromCacheOrCreateMethod(IDictionary<Type,MethodInfo> cache, Type returnType, Type targetType, string methodName, BindingFlags bindingFlags)
+        private static MethodInfo GetFromCacheOrCreateMethod(IDictionary<Type, MethodInfo> cache, Type returnType, Type targetType, string methodName, BindingFlags bindingFlags)
         {
             MethodInfo genericMethod;
             if (!cache.TryGetValue(returnType, out genericMethod))

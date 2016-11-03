@@ -49,8 +49,8 @@ namespace CodingMilitia.CastleDynamicProxySample.Timing
             }
             else //Task<TResult>
             {
-                Action<object> finallyLog = (value) => LogExiting(invocation, watch);
-                invocation.ReturnValue = GetGenericMethod(invocation).Invoke(null, new object[] { invocation.ReturnValue, finallyLog });
+                Action finallyLog = () => LogExiting(invocation, watch);
+                invocation.ReturnValue = GetGenericMethod(invocation).Invoke(null, new object[] { invocation.ReturnValue, null, finallyLog });
             }
         }
 
