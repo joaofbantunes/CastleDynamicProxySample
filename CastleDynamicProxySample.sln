@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "CastleDynamicProxySample", "CastleDynamicProxySample\CastleDynamicProxySample.xproj", "{8AE21286-F746-4B2A-8DEF-6209A569EFF4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CastleDynamicProxySample", "CastleDynamicProxySample\CastleDynamicProxySample.csproj", "{8AE21286-F746-4B2A-8DEF-6209A569EFF4}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "CachingSampleApplication", "CachingSampleApplication\CachingSampleApplication.xproj", "{FC19902A-6978-47A0-AB39-D9E399EEC80D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CachingSampleApplication", "CachingSampleApplication\CachingSampleApplication.csproj", "{FC19902A-6978-47A0-AB39-D9E399EEC80D}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "CachingSampleBenchmarksApplication", "CachingSampleBenchmarksApplication\CachingSampleBenchmarksApplication.xproj", "{AF79D82E-64C3-44B8-9484-91F581CAB227}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CachingSampleBenchmarksApplication", "CachingSampleBenchmarksApplication\CachingSampleBenchmarksApplication.csproj", "{AF79D82E-64C3-44B8-9484-91F581CAB227}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "TimingSampleBenchmarksApplication", "TimingSampleBenchmarksApplication\TimingSampleBenchmarksApplication.xproj", "{42A19959-3957-4993-AFA0-689B3681938E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TimingSampleBenchmarksApplication", "TimingSampleBenchmarksApplication\TimingSampleBenchmarksApplication.csproj", "{42A19959-3957-4993-AFA0-689B3681938E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

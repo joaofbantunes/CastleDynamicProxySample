@@ -9,28 +9,25 @@ Added the CachingSampleApplication project just to show some ways to use the imp
 
 The CachingSampleBenchmarksApplication project benchmarks the CacheInterceptor and puts it against a decorator implementation for the same interface in order to check for the performance differences.
 
-```ini
+``` ini
 
-Host Process Environment Information:
-BenchmarkDotNet.Core=v0.9.9.0
-OS=Windows
-Processor=?, ProcessorCount=8
-Frequency=2740595 ticks, Resolution=364.8843 ns, Timer=TSC
-CLR=CORE, Arch=64-bit ? [RyuJIT]
-GC=Concurrent Workstation
-dotnet cli version: 1.0.0-preview2-003133
+BenchmarkDotNet=v0.10.9, OS=Windows 10 Redstone 2 (10.0.15063)
+Processor=Intel Core i7 CPU 930 2.80GHz (Nehalem), ProcessorCount=8
+Frequency=2740576 Hz, Resolution=364.8868 ns, Timer=TSC
+.NET Core SDK=2.0.0
+  [Host]     : .NET Core 2.0.0 (Framework 4.6.00001.0), 64bit RyuJIT
+  DefaultJob : .NET Core 2.0.0 (Framework 4.6.00001.0), 64bit RyuJIT
 
-Type=CacheBenchmark  Mode=Throughput  
 
 ```
-                       Method |         Median |        StdDev |
------------------------------ |--------------- |-------------- |
-       ProxyWithGeneratedKeys | 41,730.7652 ns | 1,116.8795 ns |
-      ProxyWithConfiguredKeys | 26,851.7763 ns | 1,477.9911 ns |
-  ProxyWithGeneratedKeysAsync | 48,725.3231 ns | 1,881.9533 ns |
- ProxyWithConfiguredKeysAsync | 32,384.6814 ns |   492.3214 ns |
-                    Decorator |    407.1695 ns |     7.6731 ns |
-               DecoratorAsync |    503.9454 ns |    29.7041 ns |
+ |                       Method |        Mean |      Error |     StdDev |  Gen 0 | Allocated |
+ |----------------------------- |------------:|-----------:|-----------:|-------:|----------:|
+ |       ProxyWithGeneratedKeys | 35,170.5 ns | 349.044 ns | 291.468 ns | 0.9155 |    3953 B |
+ |      ProxyWithConfiguredKeys | 22,436.0 ns | 250.722 ns | 234.525 ns | 0.4883 |    2121 B |
+ |  ProxyWithGeneratedKeysAsync | 41,317.0 ns | 600.522 ns | 561.729 ns | 1.0376 |    4451 B |
+ | ProxyWithConfiguredKeysAsync | 26,356.5 ns | 203.918 ns | 190.745 ns | 0.6104 |    2609 B |
+ |                    Decorator |    426.5 ns |   2.484 ns |   2.324 ns | 0.0281 |     120 B |
+ |               DecoratorAsync |    515.2 ns |   2.149 ns |   1.905 ns | 0.0525 |     224 B |
 
 We can see there is a difference in the order of magnitute between the proxy approach and the decorator approach. This is not due (mostly) with using the DynamicProxy, but because this approach requires some under the hood "magic" to work (intercept only the correct methods, creating the cache keys dynamically and so on) that the decorator doesn't because it's coded for each specific situation.
 
@@ -41,29 +38,26 @@ The TimingInterceptor shows a way to check the time an operation takes to comple
 
 The TimingSampleBenchmarksApplication project benchmarks the TimingInterceptor and puts it against a decorator implementation for the same interface in order to check for the performance differences.
 
-```ini
+``` ini
 
-Host Process Environment Information:
-BenchmarkDotNet.Core=v0.9.9.0
-OS=Windows
-Processor=?, ProcessorCount=8
-Frequency=2740595 ticks, Resolution=364.8843 ns, Timer=TSC
-CLR=CORE, Arch=64-bit ? [RyuJIT]
-GC=Concurrent Workstation
-dotnet cli version: 1.0.0-preview2-003133
+BenchmarkDotNet=v0.10.9, OS=Windows 10 Redstone 2 (10.0.15063)
+Processor=Intel Core i7 CPU 930 2.80GHz (Nehalem), ProcessorCount=8
+Frequency=2740576 Hz, Resolution=364.8868 ns, Timer=TSC
+.NET Core SDK=2.0.0
+  [Host]     : .NET Core 2.0.0 (Framework 4.6.00001.0), 64bit RyuJIT
+  DefaultJob : .NET Core 2.0.0 (Framework 4.6.00001.0), 64bit RyuJIT
 
-Type=TimingBenchmark  Mode=Throughput  
 
 ```
-                      Method |        Median |      StdDev |
----------------------------- |-------------- |------------ |
-                DynamicProxy |   220.8362 ns |  12.0907 ns |
-           DynamicProxyAsync |   320.8456 ns |   7.9605 ns |
- DynamicProxyWithResultAsync | 2,050.8260 ns | 113.5469 ns |
-                   Decorator |    51.6744 ns |   0.8392 ns |
-              DecoratorAsync |   116.1886 ns |   1.5978 ns |
-    DecoratorWithResultAsync |   134.1244 ns |   1.7090 ns |
-    
+ |                      Method |        Mean |     Error |    StdDev |  Gen 0 | Allocated |
+ |---------------------------- |------------:|----------:|----------:|-------:|----------:|
+ |                DynamicProxy |   173.03 ns | 2.0208 ns | 1.8902 ns | 0.0343 |     144 B |
+ |           DynamicProxyAsync |   299.46 ns | 1.1482 ns | 1.0741 ns | 0.0663 |     280 B |
+ | DynamicProxyWithResultAsync | 1,704.27 ns | 9.2421 ns | 8.1929 ns | 0.1125 |     480 B |
+ |                   Decorator |    46.43 ns | 0.1403 ns | 0.1244 ns | 0.0095 |      40 B |
+ |              DecoratorAsync |   103.72 ns | 0.8985 ns | 0.7965 ns | 0.0170 |      72 B |
+ |    DecoratorWithResultAsync |   119.75 ns | 0.9498 ns | 0.8885 ns | 0.0343 |     144 B |
+
 This is a better example to check the performance difference between the proxy and the decorator approaches than the CacheInterceptor, because to do the timing of the operation we don't need so much "magic" going on in the interceptor.
 
 We can see that when using async methods, mainly the ones that return `Task<T>` instead of just `Task`, there is a more noticeable performance penalty due to the use of reflection, needed to implement this scenario.

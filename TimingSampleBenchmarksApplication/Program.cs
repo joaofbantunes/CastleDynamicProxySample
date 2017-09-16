@@ -1,4 +1,6 @@
 ﻿
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Running;
 
 namespace CodingMilitia.TimingSampleBenchmarksApplication
@@ -7,7 +9,9 @@ namespace CodingMilitia.TimingSampleBenchmarksApplication
     {
         public static void Main(string[] args)
         {
-            var summary = BenchmarkRunner.Run<TimingBenchmark>();
+            var summary = BenchmarkRunner.Run<TimingBenchmark>(
+                ManualConfig.Create(DefaultConfig.Instance).With(MemoryDiagnoser.Default)
+            );
         }
     }
 }
